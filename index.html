@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Caderneta do curso</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2D6A4F">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Caderneta">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEE9DA;
+    --surface:#FBFAF3;
+    --ink:#1C2B22;
+    --ink-soft:rgba(28,43,34,.60);
+    --ink-faint:rgba(28,43,34,.38);
+    --green:#2D6A4F;
+    --green-soft:rgba(45,106,79,.10);
+    --gold:#B5852E;
+    --rust:#A6482B;
+    --rule:rgba(28,43,34,.14);
+    --font-display:'Fraunces',serif;
+    --font-body:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .app{
+    max-width:460px;
+    margin:0 auto;
+    padding:28px 20px calc(40px + env(safe-area-inset-bottom));
+    min-height:100vh;
+  }
+  header{margin-bottom:22px;}
+  header h1{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:22px;
+    margin:0;
+    letter-spacing:.2px;
+  }
+  header p{
+    margin:4px 0 0;
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+  .hero{
+    background:var(--surface);
+    border-radius:20px;
+    padding:28px 24px 24px;
+    text-align:center;
+    box-shadow:0 1px 0 rgba(28,43,34,.06), 0 12px 24px -18px rgba(28,43,34,.35);
+    border:1px solid rgba(28,43,34,.08);
+  }
+  .hero-value{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:44px;
+    font-variant-numeric:tabular-nums;
+    line-height:1.1;
+  }
+  .hero-sub{
+    margin-top:6px;
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+  .confirm-btn{
+    width:100%;
+    margin-top:18px;
+    border:none;
+    border-radius:14px;
+    padding:17px 18px;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:16px;
+    background:var(--green);
+    color:#F6F4E9;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:transform .15s ease, background .2s ease;
+  }
+  .confirm-btn:active{transform:scale(.98);}
+  .confirm-btn:disabled{
+    background:var(--green-soft);
+    color:var(--green);
+    cursor:default;
+  }
+  .confirm-btn svg{width:18px;height:18px;flex:none;}
+  .pop{animation:pop .4s ease;}
+  @keyframes pop{
+    0%{transform:scale(1);}
+    35%{transform:scale(1.03);}
+    100%{transform:scale(1);}
+  }
+
+  .ledger{margin-top:30px;}
+  .ledger h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:17px;
+    margin:0 0 4px;
+  }
+  .entry-list{list-style:none;margin:0;padding:0;}
+  .entry{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 2px;
+    border-bottom:1px solid var(--rule);
+    gap:12px;
+  }
+  .entry:first-child{border-top:1px solid var(--rule);}
+  .entry-date{font-size:14.5px;}
+  .entry-right{display:flex;align-items:center;gap:14px;}
+  .entry-value{
+    font-variant-numeric:tabular-nums;
+    font-weight:600;
+    color:var(--green);
+    font-size:14.5px;
+  }
+  .entry-remove{
+    border:none;
+    background:none;
+    color:var(--ink-faint);
+    font-size:13px;
+    font-family:var(--font-body);
+    cursor:pointer;
+    padding:4px 2px;
+    white-space:nowrap;
+  }
+  .entry-remove.confirming{color:var(--rust);font-weight:600;}
+
+  .empty-state{
+    padding:22px 4px;
+    color:var(--ink-soft);
+    font-size:14px;
+    line-height:1.5;
+    border-top:1px solid var(--rule);
+  }
+
+  .controls{
+    margin-top:34px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .btn-text{
+    border:none;
+    background:none;
+    font-family:var(--font-body);
+    font-size:13.5px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    padding:6px 0;
+  }
+  .btn-text.danger{color:var(--rust);}
+  .btn-text.confirming{font-weight:700;}
+
+  .danger-zone{margin-top:18px;}
+
+  .panel{
+    margin-top:14px;
+    display:none;
+    flex-direction:column;
+    gap:10px;
+    background:var(--surface);
+    border:1px solid rgba(28,43,34,.1);
+    border-radius:12px;
+    padding:14px;
+  }
+  .panel.open{display:flex;}
+  .panel label{font-size:13px;color:var(--ink-soft);}
+  .rate-row{display:flex;align-items:center;gap:10px;}
+  .rate-row input{
+    flex:1;
+    border:1px solid rgba(28,43,34,.18);
+    border-radius:8px;
+    padding:8px 10px;
+    font-family:var(--font-body);
+    font-size:14px;
+    font-variant-numeric:tabular-nums;
+    background:#fff;
+    color:var(--ink);
+    min-width:0;
+  }
+  .panel button.primary{
+    border:none;
+    background:var(--green);
+    color:#F6F4E9;
+    border-radius:8px;
+    padding:8px 14px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .panel textarea{
+    width:100%;
+    min-height:90px;
+    border:1px solid rgba(28,43,34,.18);
+    border-radius:8px;
+    padding:10px;
+    font-family:ui-monospace, monospace;
+    font-size:12px;
+    color:var(--ink);
+    background:#fff;
+    resize:vertical;
+  }
+  .panel-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .panel-actions button{
+    border:none;
+    border-radius:8px;
+    padding:8px 14px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .panel-actions .copy-btn{background:var(--green-soft);color:var(--green);}
+  .panel-actions .restore-btn{background:rgba(166,72,43,.10);color:var(--rust);}
+  .panel-hint{font-size:12.5px;color:var(--ink-soft);line-height:1.5;margin:0;}
+
+  .save-error{
+    margin-top:10px;
+    font-size:13px;
+    color:var(--rust);
+    display:none;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Caderneta do curso</h1>
+    <p>Registro de presença por aula, R$ <span id="rateLabel">9,00</span> cada.</p>
+  </header>
+
+  <section class="hero">
+    <div class="hero-value" id="totalValue">R$ 0,00</div>
+    <div class="hero-sub" id="totalSub">carregando…</div>
+    <button class="confirm-btn" id="confirmBtn" disabled>
+      Confirmar presença de hoje
+    </button>
+  </section>
+
+  <section class="ledger">
+    <h2>Lançamentos</h2>
+    <ul class="entry-list" id="entryList"></ul>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      Nenhuma aula confirmada ainda. Toque no botão acima no dia em que for à aula.
+    </div>
+  </section>
+
+  <div class="controls">
+    <button class="btn-text" id="editRateBtn">Ajustar valor por aula</button>
+    <button class="btn-text" id="backupBtn">Fazer backup</button>
+  </div>
+
+  <div class="panel" id="rateEdit">
+    <label for="rateInput">Valor por aula (R$)</label>
+    <div class="rate-row">
+      <input type="number" id="rateInput" min="0" step="0.5" inputmode="decimal">
+      <button class="primary" id="saveRateBtn">Salvar</button>
+    </div>
+  </div>
+
+  <div class="panel" id="backupPanel">
+    <label for="backupText">Backup dos seus dados</label>
+    <textarea id="backupText" spellcheck="false"></textarea>
+    <div class="panel-actions">
+      <button class="copy-btn" id="copyBackupBtn">Copiar backup</button>
+      <button class="restore-btn" id="restoreBackupBtn">Restaurar</button>
+    </div>
+    <p class="panel-hint">Copie e guarde esse texto num app de notas de vez em quando. Se precisar restaurar, cole o backup aqui e toque em Restaurar duas vezes.</p>
+  </div>
+
+  <div class="danger-zone">
+    <button class="btn-text danger" id="resetBtn">Reiniciar mês</button>
+  </div>
+
+  <div class="save-error" id="saveError">Não foi possível salvar agora. O navegador pode estar bloqueando o armazenamento local.</div>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'caderneta-curso-v1';
+  const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+  let data = { valuePerClass: 9, entries: [] };
+  let loaded = false;
+  let resetConfirming = false, resetTimer = null;
+  let restoreConfirming = false, restoreTimer = null;
+  let deleteConfirmingId = null, deleteTimer = null;
+
+  const el = {
+    totalValue: document.getElementById('totalValue'),
+    totalSub: document.getElementById('totalSub'),
+    confirmBtn: document.getElementById('confirmBtn'),
+    entryList: document.getElementById('entryList'),
+    emptyState: document.getElementById('emptyState'),
+    editRateBtn: document.getElementById('editRateBtn'),
+    resetBtn: document.getElementById('resetBtn'),
+    rateEdit: document.getElementById('rateEdit'),
+    rateInput: document.getElementById('rateInput'),
+    saveRateBtn: document.getElementById('saveRateBtn'),
+    rateLabel: document.getElementById('rateLabel'),
+    saveError: document.getElementById('saveError'),
+    backupBtn: document.getElementById('backupBtn'),
+    backupPanel: document.getElementById('backupPanel'),
+    backupText: document.getElementById('backupText'),
+    copyBackupBtn: document.getElementById('copyBackupBtn'),
+    restoreBackupBtn: document.getElementById('restoreBackupBtn'),
+  };
+
+  function todayStr(d){
+    d = d || new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+day;
+  }
+
+  function money(n){
+    return n.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+  }
+
+  function formatDate(dateStr){
+    const parts = dateStr.split('-').map(Number);
+    const dt = new Date(parts[0], parts[1]-1, parts[2]);
+    let s = dt.toLocaleDateString('pt-BR', {weekday:'short', day:'numeric', month:'short'});
+    s = s.replace(/\./g, '');
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(parsed && typeof parsed === 'object'){
+          data.valuePerClass = typeof parsed.valuePerClass === 'number' ? parsed.valuePerClass : 9;
+          data.entries = Array.isArray(parsed.entries) ? parsed.entries : [];
+        }
+      }
+    }catch(e){
+      // sem dados salvos ainda, ou storage indisponível
+    }
+    loaded = true;
+    render();
+  }
+
+  function persist(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      hideSaveError();
+    }catch(e){
+      showSaveError();
+    }
+  }
+
+  function showSaveError(){ el.saveError.style.display = 'block'; }
+  function hideSaveError(){ el.saveError.style.display = 'none'; }
+
+  function hasConfirmedToday(){
+    return data.entries.some(function(e){ return e.date === todayStr(); });
+  }
+
+  function render(){
+    const total = data.entries.reduce(function(sum, e){ return sum + e.value; }, 0);
+    el.totalValue.textContent = money(total);
+
+    const count = data.entries.length;
+    el.totalSub.textContent = count === 0 ? 'nenhuma aula confirmada ainda' : (count === 1 ? '1 aula confirmada' : count + ' aulas confirmadas');
+
+    el.rateLabel.textContent = data.valuePerClass.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    el.rateInput.value = data.valuePerClass;
+
+    const confirmedToday = hasConfirmedToday();
+    el.confirmBtn.disabled = !loaded || confirmedToday;
+    el.confirmBtn.innerHTML = confirmedToday
+      ? CHECK_SVG + ' Presença de hoje confirmada'
+      : 'Confirmar presença de hoje';
+
+    const sorted = data.entries.slice().sort(function(a,b){
+      if(a.date !== b.date) return a.date < b.date ? 1 : -1;
+      return b.id - a.id;
+    });
+
+    el.entryList.innerHTML = '';
+    if(sorted.length === 0){
+      el.emptyState.style.display = 'block';
+    } else {
+      el.emptyState.style.display = 'none';
+      sorted.forEach(function(entry){
+        const li = document.createElement('li');
+        li.className = 'entry';
+
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'entry-date';
+        dateSpan.textContent = formatDate(entry.date);
+
+        const right = document.createElement('div');
+        right.className = 'entry-right';
+
+        const valueSpan = document.createElement('span');
+        valueSpan.className = 'entry-value';
+        valueSpan.textContent = '+ ' + money(entry.value);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'entry-remove';
+        const isConfirming = deleteConfirmingId === entry.id;
+        removeBtn.classList.toggle('confirming', isConfirming);
+        removeBtn.textContent = isConfirming ? 'remover?' : '×';
+        removeBtn.setAttribute('aria-label', 'Remover lançamento de ' + formatDate(entry.date));
+        removeBtn.addEventListener('click', function(){ handleRemove(entry.id); });
+
+        right.appendChild(valueSpan);
+        right.appendChild(removeBtn);
+        li.appendChild(dateSpan);
+        li.appendChild(right);
+        el.entryList.appendChild(li);
+      });
+    }
+
+    if(el.backupPanel.classList.contains('open')){
+      el.backupText.value = JSON.stringify(data, null, 2);
+    }
+  }
+
+  function handleConfirm(){
+    if(hasConfirmedToday()) return;
+    data.entries.push({ id: Date.now(), date: todayStr(), value: data.valuePerClass });
+    persist();
+    render();
+    el.confirmBtn.classList.remove('pop');
+    void el.confirmBtn.offsetWidth;
+    el.confirmBtn.classList.add('pop');
+  }
+
+  function handleRemove(id){
+    if(deleteConfirmingId === id){
+      clearTimeout(deleteTimer);
+      data.entries = data.entries.filter(function(e){ return e.id !== id; });
+      deleteConfirmingId = null;
+      persist();
+      render();
+      return;
+    }
+    deleteConfirmingId = id;
+    render();
+    clearTimeout(deleteTimer);
+    deleteTimer = setTimeout(function(){
+      deleteConfirmingId = null;
+      render();
+    }, 3000);
+  }
+
+  function handleReset(){
+    if(resetConfirming){
+      clearTimeout(resetTimer);
+      resetConfirming = false;
+      data.entries = [];
+      persist();
+      render();
+      el.resetBtn.textContent = 'Reiniciar mês';
+      el.resetBtn.classList.remove('confirming');
+      return;
+    }
+    resetConfirming = true;
+    el.resetBtn.textContent = 'Toque de novo para confirmar';
+    el.resetBtn.classList.add('confirming');
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(function(){
+      resetConfirming = false;
+      el.resetBtn.textContent = 'Reiniciar mês';
+      el.resetBtn.classList.remove('confirming');
+    }, 3000);
+  }
+
+  function toggleRateEdit(){
+    el.backupPanel.classList.remove('open');
+    el.rateEdit.classList.toggle('open');
+    if(el.rateEdit.classList.contains('open')) el.rateInput.focus();
+  }
+
+  function handleSaveRate(){
+    const val = parseFloat(el.rateInput.value);
+    if(!isNaN(val) && val >= 0){
+      data.valuePerClass = val;
+      persist();
+      render();
+    }
+    el.rateEdit.classList.remove('open');
+  }
+
+  function toggleBackup(){
+    el.rateEdit.classList.remove('open');
+    el.backupPanel.classList.toggle('open');
+    if(el.backupPanel.classList.contains('open')){
+      el.backupText.value = JSON.stringify(data, null, 2);
+    }
+  }
+
+  function handleCopyBackup(){
+    el.backupText.focus();
+    el.backupText.select();
+    let copied = false;
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(el.backupText.value);
+        copied = true;
+      }
+    }catch(e){}
+    if(!copied){
+      try{ document.execCommand('copy'); }catch(e){}
+    }
+    const original = el.copyBackupBtn.textContent;
+    el.copyBackupBtn.textContent = 'Copiado!';
+    setTimeout(function(){ el.copyBackupBtn.textContent = original; }, 1500);
+  }
+
+  function handleRestoreBackup(){
+    if(!restoreConfirming){
+      restoreConfirming = true;
+      el.restoreBackupBtn.textContent = 'Toque de novo pra confirmar';
+      clearTimeout(restoreTimer);
+      restoreTimer = setTimeout(function(){
+        restoreConfirming = false;
+        el.restoreBackupBtn.textContent = 'Restaurar';
+      }, 4000);
+      return;
+    }
+    try{
+      const parsed = JSON.parse(el.backupText.value);
+      if(parsed && Array.isArray(parsed.entries)){
+        data.valuePerClass = typeof parsed.valuePerClass === 'number' ? parsed.valuePerClass : data.valuePerClass;
+        data.entries = parsed.entries;
+        persist();
+        render();
+      }
+    }catch(e){
+      // JSON inválido, não faz nada
+    }
+    restoreConfirming = false;
+    el.restoreBackupBtn.textContent = 'Restaurar';
+    clearTimeout(restoreTimer);
+  }
+
+  el.confirmBtn.addEventListener('click', handleConfirm);
+  el.resetBtn.addEventListener('click', handleReset);
+  el.editRateBtn.addEventListener('click', toggleRateEdit);
+  el.saveRateBtn.addEventListener('click', handleSaveRate);
+  el.backupBtn.addEventListener('click', toggleBackup);
+  el.copyBackupBtn.addEventListener('click', handleCopyBackup);
+  el.restoreBackupBtn.addEventListener('click', handleRestoreBackup);
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    });
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>
